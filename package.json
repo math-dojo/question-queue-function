@@ -1,0 +1,14 @@
+{
+  "name": "question-queue-function",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/storage-queue": "^12.1.0-preview.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {}
+}
