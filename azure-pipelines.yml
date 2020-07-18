@@ -35,12 +35,12 @@ steps:
   displayName: 'run unit tests'
 
 - task: AzureFunctionApp@1
-  displayName: 'Deploy Functions'
-    inputs:
+  inputs:
       azureSubscription: question-queue-pipeline
-      appType: functionAppWindows
+      appType: functionApp
       appName: $(appName)
       package: $(System.ArtifactsDirectory)/**/*.zip
       deployToSlotOrASE: true
       resourceGroupName: math-dojo-hzprod-question-queue-function
       slotName: staging
+  displayName: 'Deploy Functions'    
