@@ -33,12 +33,31 @@ steps:
 - script: |  
     npm test
   displayName: 'run unit tests'
+- task: AzureCLI@2
+  displayName: 'Create AppService'
+  inputs:
+    azureSubscription: math-dojo-admin-ui-pipeline
+
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+       $serviceNameExists = az storage account check-name --name queueFunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
+        Write-Host "Does the service name exist for queueFunction$(appName): $accountNameExists"
+        If ($accountNameExists.nameAvailable) {
+          try {
+            az appservice ase create --name queueFunction$(appName)  --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
+          }
+          catch {
+            Write-Host "An error occurred:"
+            Write-Host $_
+          }
+        }
 
 - task: AzureFunctionApp@1
   inputs:
       azureSubscription: question-queue-pipeline
       appType: functionApp
-      appName: $(appName)
+      appName: queueFunction$(appName)
       package: $(System.ArtifactsDirectory)/**/*.zip
       resourceGroupName: math-dojo-hzprod-question-queue-function
   displayName: 'deploy functions'    
