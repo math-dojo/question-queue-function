@@ -44,7 +44,8 @@ steps:
         Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
         If ($serviceNameExists.nameAvailable) {
           try {
-            az appservice ase create --name queuefunction$(appName)  --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468 --vnet-name MyVirtualNetwork  --subnet MyAseSubnet
+            az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
+            az functionapp create -g MyResourceGroup  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunctionstorage
           }
           catch {
             Write-Host "An error occurred:"
