@@ -21,8 +21,9 @@ steps:
 - task: NodeTool@0
   inputs:
     versionSpec: '10.x'
-  displayName: 'Install Node.js'
--script: |
+  displayName: 'Install Dependencies'
+  
+- script: |
     npm install
     npm install jest
     npm install dotenv
@@ -31,8 +32,15 @@ steps:
 
 - script: |  
     npm test
-  displayName: 'run unit and integration tests'
+  displayName: 'run unit tests'
 
-- script: |  
-    npm start
+- task: AzureFunctionApp@1
   displayName: 'Deploy Functions'
+    inputs:
+      azureSubscription: question-queue-pipeline
+      appType: functionAppWindows
+      appName: $(appName)
+      package: $(System.ArtifactsDirectory)/**/*.zip
+      deployToSlotOrASE: true
+      resourceGroupName: math-dojo-hzprod-question-queue-function
+      slotName: staging
