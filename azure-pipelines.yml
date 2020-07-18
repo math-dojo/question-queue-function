@@ -41,8 +41,8 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
        $serviceNameExists = az storage account check-name --name queueFunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
-        Write-Host "Does the service name exist for queueFunction$(appName): $accountNameExists"
-        If ($accountNameExists.nameAvailable) {
+        Write-Host "Does the service name exist for queueFunction$(appName): $serviceNameExists"
+        If ($serviceNameExists.nameAvailable) {
           try {
             az appservice ase create --name queueFunction$(appName)  --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
           }
