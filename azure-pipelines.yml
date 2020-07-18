@@ -43,14 +43,8 @@ steps:
        $serviceNameExists = az storage account check-name --name queuefunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
         Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
         If ($serviceNameExists.nameAvailable) {
-          try {
             az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
             az functionapp create -g math-dojo-hzprod-question-queue-function  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunctionstorage --functions-version 3
-          }
-          catch {
-            Write-Host "An error occurred:"
-            Write-Host $_
-          }
         }
 
 - task: AzureFunctionApp@1
