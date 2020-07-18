@@ -45,7 +45,7 @@ steps:
         If ($serviceNameExists.nameAvailable) {
           try {
             az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
-            az functionapp create -g MyResourceGroup  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunctionstorage --functions-version 3
+            az functionapp create -g math-dojo-hzprod-question-queue-function  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunctionstorage --functions-version 3
           }
           catch {
             Write-Host "An error occurred:"
