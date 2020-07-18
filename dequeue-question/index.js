@@ -35,8 +35,6 @@ module.exports = async function (context, req) {
   const queueName = process.env.QUEUE_NAME;
   const queueClient = queueServiceClient.getQueueClient(queueName);
 
-
-
   const dequeueResponse = await queueClient.receiveMessages();
   if (dequeueResponse.receivedMessageItems.length == 1) {
     const dequeueMessageItem = dequeueResponse.receivedMessageItems[0];

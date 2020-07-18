@@ -1,0 +1,38 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- master
+- develop
+- ft*
+
+pool:
+  vmImage: 'windows-2019'
+
+variables:
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    appName: "pr$(System.PullRequest.PullRequestNumber)"
+  ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}:
+    appName: "$(Build.SourceBranchName)"
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+-script: |
+    npm install
+    npm install jest
+    npm install dotenv
+    npm install @azure/storage-queue
+  displayName: 'Install dependencies'
+
+- script: |  
+    npm test
+  displayName: 'run unit and integration tests'
+
+- script: |  
+    npm start
+  displayName: 'Deploy Functions'
