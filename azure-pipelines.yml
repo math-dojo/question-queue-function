@@ -40,7 +40,5 @@ steps:
       appType: functionApp
       appName: $(appName)
       package: $(System.ArtifactsDirectory)/**/*.zip
-      deployToSlotOrASE: true
       resourceGroupName: math-dojo-hzprod-question-queue-function
-      slotName: staging
-  displayName: 'Deploy Functions'    
+  displayName: 'deploy functions'    
