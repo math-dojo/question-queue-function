@@ -36,8 +36,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Create AppService'
   inputs:
-    azureSubscription: math-dojo-admin-ui-pipeline
-
+    azureSubscription: question-queue-pipeline
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
