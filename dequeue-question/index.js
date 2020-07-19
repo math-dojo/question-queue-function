@@ -12,7 +12,12 @@ module.exports = async function (context, req) {
 
     }
     else {
-        dequeue()
+      return {
+        httpResponse: {
+            body: dequeue()
+        },
+        queueOutput: retMsg
+    };
     }
 };
 
