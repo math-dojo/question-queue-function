@@ -6,7 +6,7 @@ module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
     if (req.body && req.body.questionTitle) {
-        enqueue(req.body)
+        await enqueue(context, req.body)
     }
     else {
         context.res = {
@@ -16,11 +16,11 @@ module.exports = async function (context, req) {
     }
 }
 
- async function enqueue(question) {
+ async function enqueue(context, question) {
 
     const account = process.env.ACCOUNT_NAME || "";
     const accountKey = process.env.ACCOUNT_KEY || "";
-
+    context.log(account + "is the account name");
 
     const sharedKeyCredential = new StorageSharedKeyCredential(account, accountKey);
 
@@ -32,15 +32,16 @@ module.exports = async function (context, req) {
 
 
     const queueName = process.env.QUEUE_NAME;
+    context.log(queueName + "is the queue name");
     const queueClient = queueServiceClient.getQueueClient(queueName);
     const createQueueResponse = await queueClient.create();
-    console.log(
+    context.log(
         `Create queue ${queueName} successfully, service assigned request Id: ${createQueueResponse.requestId}`
     );
 
 
     const enqueueQueueResponse = await queueClient.sendMessage(question);
-    console.log(
+    context.log(
         `Sent message successfully, service assigned message Id: ${enqueueQueueResponse.messageId}, service assigned request Id: ${enqueueQueueResponse.requestId}`
     );
 }

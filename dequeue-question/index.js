@@ -14,7 +14,7 @@ module.exports = async function (context, req) {
   else {
     return {
       httpResponse: {
-        body: dequeue()
+        body: await dequeue(context)
       }
     };
   }
@@ -22,7 +22,7 @@ module.exports = async function (context, req) {
 
 
 
-async function dequeue() {
+async function dequeue(context) {
 
   const account = process.env.ACCOUNT_NAME || "";
   const accountKey = process.env.ACCOUNT_KEY || "";
@@ -46,7 +46,7 @@ async function dequeue() {
       dequeueMessageItem.messageId,
       dequeueMessageItem.popReceipt
     );
-    console.log(
+    context.log(
       `Delete message successfully, service assigned request Id: ${deleteMessageResponse.requestId}`
     );
     return dequeueMessageItem
