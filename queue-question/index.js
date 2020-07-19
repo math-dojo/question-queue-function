@@ -40,7 +40,7 @@ module.exports = async function (context, req) {
     );
 
 
-    const enqueueQueueResponse = await queueClient.sendMessage(question);
+    const enqueueQueueResponse = await queueClient.sendMessage(JSON.stringify(question));
     context.log(
         `Sent message successfully, service assigned message Id: ${enqueueQueueResponse.messageId}, service assigned request Id: ${enqueueQueueResponse.requestId}`
     );
