@@ -17,6 +17,21 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
+- task: AzureCLI@2
+  displayName: 'Create AppService'
+  inputs:
+    azureSubscription: question-queue-pipeline
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+       $serviceNameExists = az storage account check-name --name queuefunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
+        Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
+        If ($serviceNameExists.nameAvailable) {
+            az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
+            az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
+            az functionapp create -g math-dojo-hzprod-question-queue-function  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunction$(appName) --functions-version 3
+        }
+
 - script: |
     npm install
     npm install jest
