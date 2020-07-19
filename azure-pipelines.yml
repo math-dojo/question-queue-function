@@ -29,7 +29,7 @@ steps:
         If ($serviceNameExists.nameAvailable) {
             az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
             az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
-            az functionapp create   --resource-group myResourceGroup --consumption-plan-location uksouth --name queuefunction$(appName) --storage-account  queuefunction$(appName) --os-type Windows --runtime node --functions-version 3
+            az functionapp create   --resource-group math-dojo-hzprod-question-queue-function --consumption-plan-location uksouth --name queuefunction$(appName) --storage-account  queuefunction$(appName) --os-type Windows --runtime node --functions-version 3
         }
 
 - script: |
