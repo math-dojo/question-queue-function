@@ -12,10 +12,8 @@ module.exports = async function (context, req) {
 
   }
   else {
-    return {
-      httpResponse: {
-        body: await dequeue(context)
-      }
+    context.res = {
+      body: await dequeue(context)
     };
   }
 };
