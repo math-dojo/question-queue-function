@@ -1,58 +1,41 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
 
 trigger:
 - master
 - develop
 - ft*
 
-pool:
-  vmImage: 'windows-2019'
-
 variables:
   ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     appName: "pr$(System.PullRequest.PullRequestNumber)"
   ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}:
     appName: "$(Build.SourceBranchName)"
+  azureSubscription: question-queue-pipeline
+  functionappName: queuefunction$(appName)
+
+pool:
+  vmImage: 'windows-2019'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Dependencies'
-  
 - script: |
     npm install
     npm install jest
     npm install dotenv
-    npm install @azure/storage-queue
-  displayName: 'Install dependencies'
-
-- script: |  
-    npm test
-  displayName: 'run unit tests'
-- task: AzureCLI@2
-  displayName: 'Create AppService'
+    npm run build --if-present
+    
+- task: ArchiveFiles@2
+  displayName: "Archive files"
   inputs:
-    azureSubscription: question-queue-pipeline
-    scriptType: ps
-    scriptLocation: inlineScript
-    inlineScript: |
-       $serviceNameExists = az storage account check-name --name queuefunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
-        Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
-        If ($serviceNameExists.nameAvailable) {
-            az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
-            az appservice plan create -g math-dojo-hzprod-question-queue-function -n queuefunction$(appName)plan
-            az functionapp create -g math-dojo-hzprod-question-queue-function  -p queuefunction$(appName)plan -n queuefunction$(appName) -s queuefunction$(appName) --functions-version 3
-        }
-
-- task: AzureFunctionApp@1
+    rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
+    includeRootFolder: false
+    archiveFile: "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip"
+- task: PublishBuildArtifacts@1
   inputs:
-      azureSubscription: question-queue-pipeline
-      appType: functionApp
-      appName: queuefunction$(appName)
-      package: $(System.ArtifactsDirectory)/**/*.zip
-      resourceGroupName: math-dojo-hzprod-question-queue-function
-  displayName: 'deploy functions'    
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip'
+    name: 'drop'
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    connectionType: 'AzureRM'
+    azureSubscription: "$(azureSubscription)"
+    appType: 'functionApp'
+    webAppName: "$(functionappName)"
