@@ -12,7 +12,7 @@ variables:
     appName: "$(Build.SourceBranchName)"
   azureSubscription: question-queue-pipeline
   functionappName: queuefunction$(appName)
-
+  resourceGroup: math-dojo-hzprod-question-queue-function
 pool:
   vmImage: 'windows-2019'
 
@@ -27,8 +27,8 @@ steps:
        $serviceNameExists = az storage account check-name --name queuefunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
         Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
         If ($serviceNameExists.nameAvailable) {
-            az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group math-dojo-hzprod-question-queue-function --subscription 5594cd6c-b674-4323-8517-5e859a399468
-            az functionapp create   --resource-group myResourceGroup --consumption-plan-location uksouth --name queuefunction$(appName) --storage-account  queuefunction$(appName) --os-type Windows --runtime node --functions-version 3 --disable-app-insights true
+            az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group $(resourceGroup) --subscription 5594cd6c-b674-4323-8517-5e859a399468
+            az functionapp create   --resource-group $(resourceGroup) --consumption-plan-location uksouth --name queuefunction$(appName) --storage-account  queuefunction$(appName) --os-type Windows --runtime node --functions-version 3 --disable-app-insights true
         }
 
 - script: |
