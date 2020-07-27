@@ -1,0 +1,54 @@
+
+
+trigger:
+- master
+- develop
+- ft*
+
+variables:
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    appName: "pr$(System.PullRequest.PullRequestNumber)"
+  ${{ if not(eq(variables['Build.Reason'], 'PullRequest')) }}:
+    appName: "$(Build.SourceBranchName)"
+  azureSubscription: question-queue-pipeline
+  functionappName: queuefunction$(appName)
+  resourceGroup: math-dojo-hzprod-question-queue-function
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Create AppService'
+  inputs:
+    azureSubscription: question-queue-pipeline
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+       $serviceNameExists = az storage account check-name --name queuefunction$(appName) --subscription 5594cd6c-b674-4323-8517-5e859a399468 | ConvertFrom-Json
+        Write-Host "Does the service name exist for queuefunction$(appName): $serviceNameExists"
+        If ($serviceNameExists.nameAvailable) {
+            az storage account create --name queuefunction$(appName) --kind StorageV2 --location uksouth --resource-group $(resourceGroup) --subscription 5594cd6c-b674-4323-8517-5e859a399468
+            az functionapp create   --resource-group $(resourceGroup) --consumption-plan-location uksouth --name queuefunction$(appName) --storage-account  queuefunction$(appName) --os-type Windows --runtime node --functions-version 3 --disable-app-insights true
+        }
+
+- script: |
+    npm install
+    npm run build 
+  displayName: 'Building package'
+    
+- task: ArchiveFiles@2
+  displayName: "Archive files"
+  inputs:
+    rootFolderOrFile: "$(System.DefaultWorkingDirectory)"
+    includeRootFolder: false
+    archiveFile: "$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip"
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/$(Build.BuildId).zip'
+    name: 'drop'
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    connectionType: 'AzureRM'
+    azureSubscription: "$(azureSubscription)"
+    appType: 'functionApp'
+    webAppName: "$(functionappName)"
